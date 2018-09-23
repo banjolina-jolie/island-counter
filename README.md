@@ -9,7 +9,7 @@ Run in the terminal with `node index.js [matrix_size] [min_island_size]`
 
 Example:
 
-`node index.js 7 2`
+`node index.js 7 3`
 
 will output something like:
 ```
