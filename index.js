@@ -1,3 +1,5 @@
+const colors = require('colors');
+
 function createGrid(size) {
   const grid = [];
   let rIdx = 0;
@@ -19,7 +21,11 @@ function createGrid(size) {
 function printGrid(grid) {
   const printable = grid.map(row => (
     row.join().toString() + '\n'
-  )).join('').toString().replace(/\[|\]/g, '');
+  ))
+  .join('')
+  .toString()
+  .replace(/\[|\]/g, '')
+  .replace(/1/g, '1'.green);
   console.log(printable);
 }
 
@@ -27,7 +33,6 @@ class IslandCounter {
   constructor(gridSize, minIslandSize) {
     this.grid = createGrid(gridSize);
     this.minIslandSize = minIslandSize;
-    printGrid(this.grid);
   }
 
   get islandCount() {
@@ -47,11 +52,12 @@ class IslandCounter {
         }
       })
     });
+    printGrid(this.grid);
     return islandCount;
   }
 
   markCellAndCheckNeighbors(rIdx, cIdx) {
-    this.grid[rIdx][cIdx] = 'C';
+    this.grid[rIdx][cIdx] = '1';
 
     const neighboringIdxs = [
       [0, -1],
@@ -65,7 +71,7 @@ class IslandCounter {
       const nextCIdx = cIdx + set[1];
       if (this.grid[nextRIdx] && (this.grid[nextRIdx][nextCIdx]) === 1) {
         this.workingIslandSize++;
-         this.markCellAndCheckNeighbors(nextRIdx, nextCIdx);
+        this.markCellAndCheckNeighbors(nextRIdx, nextCIdx);
       }
     });
   }
@@ -74,4 +80,6 @@ class IslandCounter {
 
 const args = process.argv.slice(2);
 const islandCounter = new IslandCounter(args[0] || 6, args[1] || 1);
-console.log(islandCounter.islandCount);
+const count = islandCounter.islandCount;
+const msg = count === 1 ? 'There is 1 island' : `There are ${count} islands`;
+console.log(msg);
