@@ -18,14 +18,17 @@ function createGrid(size) {
   return grid;
 }
 
-function printGrid(grid) {
-  const printable = grid.map(row => (
+function printGrid(grid, withColor) {
+  let printable = grid.map(row => (
     row.join().toString() + '\n'
   ))
   .join('')
   .toString()
-  .replace(/\[|\]/g, '')
-  .replace(/1/g, '1'.green);
+  .replace(/\[|\]/g, '');
+
+  if (withColor) {
+    printable = printable.replace(/([^0|,|\n|N])/g, '$1'.green);
+  }
   console.log(printable);
 }
 
@@ -40,24 +43,37 @@ class IslandCounter {
   }
 
   countIslands() {
+    printGrid(this.grid);
+    this.islandCoordinatesSets = [];
     let islandCount = 0;
     this.grid.forEach((row, rIdx) => {
       row.forEach((col, cIdx) => {
+        this.workingIslandCoordinates = [];
         if (this.grid[rIdx][cIdx] === 1) {
+          this.workingIslandCoordinates = [[rIdx,cIdx]];
           this.workingIslandSize = 1;
           this.markCellAndCheckNeighbors(rIdx, cIdx);
-          if (this.workingIslandSize >= this.minIslandSize) {
-            islandCount++;
+          if (this.workingIslandCoordinates.length >= this.minIslandSize) {
+            this.islandCoordinatesSets.push(this.workingIslandCoordinates);
+          } else {
+            this.workingIslandCoordinates.forEach(coordinates => {
+              this.grid[coordinates[0]][coordinates[1]] = 'N';
+            });
           }
         }
       })
     });
-    printGrid(this.grid);
-    return islandCount;
+    this.islandCoordinatesSets.forEach((set, setIdx) => {
+      set.forEach(coordinates => {
+        this.grid[coordinates[0]][coordinates[1]] = setIdx + 1;
+      })
+    });
+    printGrid(this.grid, true);
+    return this.islandCoordinatesSets.length;
   }
 
   markCellAndCheckNeighbors(rIdx, cIdx) {
-    this.grid[rIdx][cIdx] = '1';
+    this.grid[rIdx][cIdx] = 'C'; // 'C' for being checked
 
     const neighboringIdxs = [
       [0, -1],
@@ -70,7 +86,7 @@ class IslandCounter {
       const nextRIdx = rIdx + set[0];
       const nextCIdx = cIdx + set[1];
       if (this.grid[nextRIdx] && (this.grid[nextRIdx][nextCIdx]) === 1) {
-        this.workingIslandSize++;
+        this.workingIslandCoordinates.push([nextRIdx,nextCIdx]);
         this.markCellAndCheckNeighbors(nextRIdx, nextCIdx);
       }
     });
