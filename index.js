@@ -43,44 +43,51 @@ class IslandCounter {
   }
 
   countIslands() {
+    // print original unaffected grid
     printGrid(this.grid);
-    this.islandCoordinatesSets = [];
-    let islandCount = 0;
+
+    // store coordinate sets of cells in aptly sized islands to change their value later
+    const islandCoordinatesSets = [];
+
     this.grid.forEach((row, rIdx) => {
       row.forEach((col, cIdx) => {
+        // reset working island coordinates (an array of [rowIdx, colIdx])
         this.workingIslandCoordinates = [];
+
         if (this.grid[rIdx][cIdx] === 1) {
           this.workingIslandCoordinates = [[rIdx,cIdx]];
           this.workingIslandSize = 1;
           this.markCellAndCheckNeighbors(rIdx, cIdx);
+
           if (this.workingIslandCoordinates.length >= this.minIslandSize) {
-            this.islandCoordinatesSets.push(this.workingIslandCoordinates);
+            // enough cells are present in workingIslandCoordinates array to be saved
+            islandCoordinatesSets.push(this.workingIslandCoordinates);
           } else {
             this.workingIslandCoordinates.forEach(coordinates => {
+              // Change cell to N for "not an island" because it's too small
               this.grid[coordinates[0]][coordinates[1]] = 'N';
             });
           }
         }
       })
     });
-    this.islandCoordinatesSets.forEach((set, setIdx) => {
+
+    islandCoordinatesSets.forEach((set, setIdx) => {
       set.forEach(coordinates => {
+        // change cell to be island number
         this.grid[coordinates[0]][coordinates[1]] = setIdx + 1;
       })
     });
+
+    // print grid with island numbering and colors
     printGrid(this.grid, true);
-    return this.islandCoordinatesSets.length;
+    return islandCoordinatesSets.length;
   }
 
   markCellAndCheckNeighbors(rIdx, cIdx) {
-    this.grid[rIdx][cIdx] = 'C'; // 'C' for being checked
+    this.grid[rIdx][cIdx] = 'C'; // 'C' for being currently checked
 
-    const neighboringIdxs = [
-      [0, -1],
-      [0, 1],
-      [-1, 0],
-      [1, 0]
-    ];
+    const neighboringIdxs = [ [0, -1], [0, 1], [-1, 0], [1, 0]];
 
     neighboringIdxs.forEach(set => {
       const nextRIdx = rIdx + set[0];
